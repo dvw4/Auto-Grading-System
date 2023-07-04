@@ -1,0 +1,530 @@
+<?php
+
+
+$str_json = file_get_contents('php://input'); 
+$response5 = json_decode($str_json, true);  //uncomment only this
+ 
+var_dump($response5);
+//$requestType = 'gradeExam';
+//$examnames = 'notWorking';
+//$response5 = array('requestType' => $requestType, 'exam_name'=> $examnames);
+
+	$url = "https://afsaccess4.njit.edu/~rn273/CS490/betaback.php";
+ 
+ 	$ch = curl_init($url);
+	//options for a curl transfer
+ // curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type:application/json'));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($response5, true));
+	//execute curl session
+	$response = curl_exec($ch);
+ curl_close($ch);
+ 
+ $json = json_decode($response, true);
+ 
+var_dump($json);
+//echo ($json);
+
+  $functionName = $json['name'];
+  $question = $json['text'];
+  
+  
+
+  $topic = $json['topic'];
+
+  $answers = $json['answer'];
+  $examname = $json['examname'];
+  
+  $ids = $json['id'];
+ 
+  $inputRaw = str_replace(' ', '',$json['test1_case']);
+  $outputRaw =  str_replace(' ', '',$json['test2_ans']);
+  $pointWorth= $json['points'];
+  
+ // var_dump($outputRaw);
+   $total = (int) $total;
+  $total = $total + $pointWorth; ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  foreach ($json as $row) 
+ {
+  echo '///////////////////////////////////'; 
+  echo '<br> <br>';
+ echo $functionName = $row['name'];
+ echo $topic = $row['topic'];
+ echo $answers = $row['answer'];
+ echo $inputRaw =$row['test1_case'];
+ echo $outputRaw = $row['test1_ans'];
+ echo $ids = $row['id'];
+ echo $constraint = $row['const'];
+ echo $pointWorth = $row['points'];
+ echo $question = $row['text'];
+ echo $examname = $row['examname'];
+ //echo $ids = $row['id'];
+ 
+	echo '<br>';
+
+
+
+ echo '<br>$asnwer<br>';
+  echo $topic;
+  echo $answers;
+  
+   $studentanswer ="";
+  $notes="";
+  $grades = (int) $grades;
+$grades=$pointWorth;	
+//$param=explode(',',$parameters);
+
+$numberofinput = substr_count($inputRaw,":");  // FOR AMRITHA
+$numberofinput += '1';
+echo '<br> this are number of count <br>', $numberofinput;
+//constraint
+$constraintP = 0;
+if($constraint == '') {$constraintP = 0;}
+else {$constraintP = 0.2;}
+//points
+echo 'constraint' , $constraintP, '<br>';
+$pointP = 0;
+$pointP = (1 - 0.2 - $constraintP)/$numberofinput;
+$studentpoints = (int) $studentpoints;
+$studentpoints = $pointWorth * $pointP; 
+echo gettype($studentpoints);
+
+//PREPARE INPUTS
+$inputs=array();
+
+
+
+switch($topic)
+{
+  case 'Conditionals':
+
+	$input=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$output=explode(":",$outputRaw); //turns into array, which divides into sample outputs.
+  echo 'input and output';
+  echo $inputRaw;
+  echo $outputRaw;
+
+/*sample input output and cases
+if casesRaw = "inputA,inputB" then, cases => [0]=='inputA',  [1]=='inputB'
+if inputRaw = "1,2:3,4:5,6" then, input => [0]=='1,2',  [1]=='3,4',   [2]=='5,6', || use 
+explode(",",input[0]) to obtain an array for output 0 which is [0]=='1', and [1]=='2'
+if outputRaw = "3:7:11" then, output => [0]=='3',[1]=='7',[2]=='11'
+input[0] corresponds to output[0]. In other words if the function is inserted with 
+input[0], then the output should be output[0]*/
+
+	$in = explode(':',$inputRaw);
+	$out = explode(',',$outputRaw);           
+//  $count = count($out);
+  echo '.................................................................................................',$out;
+ echo $count;
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode(',',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+		$inputs[]="'$buffs[0]',$buffs[1],$buffs[2]";
+   
+   echo '<br>...NOW GRADING infdfssfsdfdsfsd </br>';
+  //  echo '<br>...NOW GRADING infdfssfsdfdsfsd </br>';
+	}
+	break;
+
+  case 'For Loops':
+	$input=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$output=explode(":",$outputRaw); //turns into array, which divides into sample outputs.
+
+	$in = explode(':',$inputRaw);
+	$out = explode(',',$outputRaw);
+  $word = "for";
+  if(strpos($answers, $word) !== true){
+    echo "<br>Word Found!";                               // IF STUDENT USED FOR LOOP THEN GIVE THEM POINTS
+    $constraint = 'Student used for';
+    $grades2=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;
+  $constraint2 = 1;
+	$constraint2 *=$grades * $constraintP;
+ // $grades += $grades2;
+    
+} 
+else{
+    echo "<br>Word Not Found!";
+    $constraint = '(for) not found CHEATER';
+    $grades2=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;                          //IF STUDENT DID NOT USED FOR LOOP TAKE POINTS OUT
+  $constraint2 = -1;
+	$constraint2 *=$grades * $constraintP;
+  $grades -= $grades2;
+  }
+  
+   
+
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode(',',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+		$inputs[]="$buffs[0],$buffs[1]";
+	}
+	
+	break;
+
+  case 'While Loops':
+  $input=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$output=explode(":",$outputRaw); //turns into array, which divides into sample outputs.
+
+	$in = explode(':',$inputRaw);
+	$out = explode(',',$outputRaw);
+  
+  $word1 = "while";
+  if(strpos($answers, $word1) !== false){
+  $constraint = $word1;
+  $constraint = 'Student used while';
+  $grades2=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;
+  $constraint2 = 1;
+	$constraint2 *=$grades * $constraintP;
+    echo "<br>Word Found!";
+} else{
+    echo "<br>Word Not Found!";
+    $constraint = '(while) not found CHEATER';
+    $grades1=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;
+  $constraint2 = -1;
+	$constraint2 *=$grades * $constraintP;
+  $grades -= $grades1;
+  }
+  
+  
+  
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode(',',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+		$inputs[]="$buffs[0],$buffs[1]";
+	}
+	
+	break;
+
+  
+  case 'Recursion':
+  $input=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$output=explode(":",$outputRaw); //turns into array, which divides into sample outputs.
+
+	$in = explode(':',$inputRaw);
+	$out = explode(',',$outputRaw);
+  
+  $word2 = $functionName;
+  
+   if(substr_count($answers, $word2) > 1) {
+  echo 'moe than 2';
+  $constraint = $word2;
+  $constraint = 'Student used recursion';
+  $grades2=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;
+  $constraint2 = 1;
+	$constraint2 *=$grades * $constraintP;
+    echo "<br>Word Found!";
+  
+}
+else {
+  echo 'more than 2';
+  echo "<br>Word Not Found!";
+    $constraint = '(recursion) not found CHEATER';
+    $grades1=$grades * $constraintP;
+  $constraint2 = (int) $constraint2;
+  $constraint2 = -1;
+	$constraint2 *=$grades * $constraintP;
+  $grades -= $grades1;
+}
+  
+ 
+  
+  
+  
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode(',',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+		$inputs[]="$buffs[0],$buffs[1]";
+	}
+	
+	break;
+  
+  
+  
+  
+  
+  
+  
+      
+  case 'Lists':
+	$in=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$out=explode(",",$outputRaw); //turns into array, which divides into sample outputs.
+echo $out;
+//make array of params
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode('?',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+		$inputs[]="$buffs[0],$buffs[1]";
+	}
+	break;	
+ 
+  case 'Variables':
+	$in=explode(":",$inputRaw); //turns into array, which divides up the inputs. input[0] corresponds to output[0] and so on.
+	$out=explode(",",$outputRaw); //turns into array, which divides into sample outputs.
+   echo '.................................................................................................',var_dump($in), '<br>';
+echo 'tttttttttttttttttttttttpppppppt',var_dump($in);
+//make array of params
+        for($i=0;$i<count($out);$i++)
+	{
+		$buffs=explode(',',$in[$i]);
+		//array_push($inputs,$buffs[0],$buffs[1]);
+			$inputs[]="$buffs[0], $buffs[1]";
+	}
+ var_dump($inputs[0]);
+ break;
+}
+
+$arrayLength = count($inputs);      //look at this later
+ ////////////////////////////////////////////////////////////////////Each test case in seperate varaible///////////////////////////////
+ echo $arrayLength,'tytytytytyttytytytytytytytytyty';                 //
+$techertestcase1 = '';
+$techertestcase2 = '';
+$techertestcase3 = '';
+$techertestcase4 = '';
+$techertestcase5 = '';
+$techertestcase1 = $inputs[0];
+$techertestcase2 = $inputs[1];
+$techertestcase3 = $inputs[2];
+$techertestcase4 = $inputs[3];
+$techertestcase5 = $inputs[4];
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+echo 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhINPUTS',$inputs;
+var_dump($inputs);
+
+//$count=count($out); # of inputs/outputs given
+$copy=$answers;
+
+echo 'copyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',$copy;
+//$word = "adittion";
+
+echo '<br>...NOW GRADING<br><br>';
+
+$header=strtok($answers,':');	//extract function header
+echo "function header is : $header.<br>";
+$tok=strtok($header,'(');
+
+$pos1=strpos($header,'(');
+//$pos2=strpos($header,')',$pos1+1);
+
+$stuP=substr($header,$pos1+1,-1);
+$sInput=explode(',',$stuP); //get student input parameters
+var_dump($sInput);
+
+echo "function header is : $header.<br>";
+
+echo "Student provided input : $sInput[0]";
+$fname=preg_split("/[\s]/",$tok);
+
+//echo "fname is this",$fname[1];
+//echo "fname is this",$fname[1];
+//PRELIM TESTS -----------------------------------------
+echo '<br>';
+echo 'copyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',$copy;
+//CHECK CODE-------------------------------------
+  $file = "exec.py";
+  $handle = fopen($file, 'w');// or die ('Cannot open file: '.$file);
+  fwrite($handle, $copy);
+  fclose($handle);
+echo 'copyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',$copy;
+  $check = exec("python check.py");
+  if($check!=1)
+  {	
+    //$file=readfile('test.txt');
+    $check = exec("python check.py >|txt.txt");
+    $mesg=shell_exec('tail -3 txt.txt');
+
+    $faulty=explode('^',$mesg);    
+    $copy=str_replace(trim($faulty[0]),"  a=a",$copy); //Fixes erroneous code
+
+//echo "$mesg<br>$faulty[0] $faulty[1]";
+
+    $notes=$notes . "Your code has a ' $faulty[1]'  error/issue originating from ' $faulty[0].',";
+
+    echo '<br><br>';
+  }
+
+// CHECKING FUNCTION NAME
+$fnames = $fname[1]; 
+echo '////////////////////////////////////////////////////////////////////////////////////////////////////////',$fnames,'<br>';
+if(strcmp($fname[1],$functionName)!=0)
+  {
+   echo '<br> this is fname </br>';                                     // IF THE FUNCTION NAME DONOT MATCH THEN POINTS MINUS
+   echo $fname[1];
+   $fnames = $fname[1]; 
+   //echo '////////////////////////////////////////////////////////////////////////////////////////////////////////',$fname[1];
+	//$tok=strtok($answer,':');
+
+	$grades1=$grades * 0.2;
+  $func = (int) $func;
+  $func = -1;
+	$func *=$grades * 0.2;
+  $grades -= $grades1;
+  	$notes=$notes . "You made a mistake in the function header should have function name '$functionName', you provided: '$fname[1]' instead. Deduction: '$func' ,"; 
+ //  echo '<br> this is func </br>',$func;
+  }
+  else {
+   $grades1=$grades * 0.2;
+  $func = (int) $func;  
+  $func = 1;                                          // IF FUNCTION NAME MATCH THEN POINTS PLUS
+  	$func *=$grades * 0.2;
+  //$grades += $grades1;
+  //$grades += $studentpoints;
+  }
+// echo '/////////////////]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]', $func;
+  //GRADING
+  if (preg_match('/return\s+\d+/', $copy)) {
+   echo 'Cheater!';                             //////////////////////////CHECKING
+    $k = false;} 
+    else {$k = true;} 
+ $pointsforcase = '';
+for($i=0;$i<$arrayLength;$i++)
+{
+  //$inners=explode(',',$in[$i]);	
+
+  $file = "exec.py";
+  $handle = fopen($file, 'w');// or die ('Cannot open file: '.$file);
+  
+ echo 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', $inputs[$i], '44444444444444445';
+  fwrite($handle, $copy."\nprint($fname[1]($inputs[$i]))");//newest addon
+  
+  fclose($handle);
+
+  $res=exec("python ./exec.py 2>&1");
+  echo $res, '<br> this is output from pyton </br>', $res;
+  if(($res===$out[$i]) & ($k)){     //////////////////CHECKING
+  $studentanswer =$studentanswer."$res,"; ///////////////////extracting student code answer after running the code in python
+    
+  echo '<br>pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp', $studentanswer;
+  
+  $pointsforcase =$pointsforcase. "+$studentpoints ,";
+  
+  echo 'hello', $studentpoints;  
+  echo '<br> oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',$pointsforcase;
+	echo 'Correct<br>';}
+
+else
+  {
+	$notes=$notes."You have failed the $i 'th case. Your answer provided ' $res ' instead of $out[$i]. Deduction: -1, ";
+   $studentanswer =$studentanswer."$res,"; 
+    $pointsforcase =$pointsforcase. "-$studentpoints ,";   
+    echo 'hello', $studentpoints;              ///////////////////extracting student code answer after running the code in python
+ echo '<br> ',$res,'res is<br>';
+	$grades=$grades - $studentpoints;
+ 
+  }
+
+}
+
+echo "Final grade is $grades<br>";
+echo $notes;
+$out22 = [];
+echo $pointsforcase;
+	$out22 = explode(',',$pointsforcase);   
+   var_dump($out22);                   ///////     points PER CASE
+echo '<br> oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',$out22[0];   
+
+$studentpoints1 = $out22[0];   
+$studentpoints2 = $out22[1]; 
+$studentpoints3 = $out22[2]; 
+$studentpoints4 = $out22[3];
+$studentpoints5 = $out22[4];  
+  
+  //////hardcode
+$note = 'fghfg';
+$constraints = 'gff'; //change it to empty sstring
+$constraint2s = '34';
+  $username = "student1";
+ $requesttype = "store";
+
+ $answers12 = 'qwertyy';
+ $inputRaw1 = '+,-';
+ echo ']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]',$outputRaw;
+
+  	$out23 = explode(',',$outputRaw);
+   $teachertestout1 = $out23[0];
+   $teachertestout2 = $out23[1];
+   $teachertestout3 = $out23[2];
+   $teachertestout4 = $out23[3];
+   $teachertestout5 = $out23[4];
+   var_dump($out23);
+ 
+ 	///////////////////////////////////////////////////////////////taking individual student answer and putting it in individual varaible
+  
+ 	$out21 = explode(',',$studentanswer);
+  $studentanswer1 = $out21[0];
+  $studentanswer2 = $out21[1];
+  $studentanswer3 = $out21[2];
+  $studentanswer4 = $out21[3];
+  $studentanswer5 = $out21[4];
+  
+  
+  
+  
+ echo '[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[',gettype($studentanswer),$studentanswer2;    ///////thecoding answer of student
+ $fname1 = 'operation';
+ $username1 = 'qwert';
+ $examname1 = 'fsdfsd';
+ $ids1 = '275';
+ $grades12 = '34';//   fix it
+ $grades = (string)$grades;
+ echo gettype($grades);
+ echo $grades;
+ $functionName12 = 'sfsdfsd';
+ $outputRaw12 = '1,2,3';
+ $res12 = 'sfsd';
+ //$pointWorth = '12';
+ $question12 = 'sfsdsd';
+ $numberofinput12 = '3';
+ $func12 = '12';
+  $studentgrade = (int) $studentgrade;
+  $studentgrade = 0;
+ $studentgrade += $grades;
+
+ ////////
+ 
+$data12 = array('requestType' => $requesttype, 'username' => $username, 'examname' => $examname, 'id' => $ids,'answer' => $answers, 'grade'=>$grades, 'functionName'=>$functionName,'test1_case'=>$inputRaw,'test1_ans'=>$outputRaw,'functionname'=>$fnames,'points'=>$pointWorth,'comments'=>$note, 'text' => $question, 'num_cases'=> $numberofinput,'func' => $func, 'constraint' => $constraint, 'constraint2' => $constraint2,'techertestcase1' => $techertestcase1, 'techertestcase2' => $techertestcase2, 'techertestcase3' => $techertestcase3, 'techertestcase4' =>$techertestcase4, 'techertestcase5' => $techertestcase5, 'studentanswer1' => $studentanswer1,'studentanswer2' =>$studentanswer2, 'studentanswer3' => $studentanswer3, 'studentanswer4' =>$studentanswer4, 'studentanswer5' => $studentanswer5, 'teachertestout1' => $teachertestout1, 'teachertestout2' => $teachertestout2, 'teachertestout3' => $teachertestout3, 'teachertestout4' => $teachertestout4 , 'teachertestout5' => $teachertestout5,'pointsforcase1' =>$studentpoints1, 'pointsforcase2' =>$studentpoints2, 'pointsforcase3' => $studentpoints3, 'pointsforcase4' => $studentpoints4, 'pointsforcase5' => $studentpoints5);
+    
+    
+$json123 = json_encode($data12, true);
+
+//===========================CURL===================================
+	/*$curl = curl_init();
+	curl_setopt($curl, CURLOPT_POST, 1);
+	curl_setopt($curl, CURLOPT_URL,'https://afsaccess4.njit.edu/~rn273/CS490/betaback.php');  
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+  	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);*/
+  // $url1 = 'https://afsaccess4.njit.edu/~dvw4/CS490/test/testing.php';
+   $url = 'https://afsaccess4.njit.edu/~rn273/CS490/betaback.php';
+	$curl = curl_init();
+ 
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json','Content-Type: application/json'));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $json123);
+	$responseDB = json_decode(curl_exec($curl));
+ echo 'qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqeqqqqq',$question;
+	curl_close($curl); 
+ 
+ 
+ var_dump($responseDB);
+ echo '<br> </br>';
+ 
+ } //END OF FOREACH LOOP
+ // echo gettype($studeentgrades);
+ $studeentgrades = array('sutdenttotalgrade' => $studentgrade,'total' => $total);
+	echo json_encode($responseDB,$studeentgrades);
+
+
+?>
